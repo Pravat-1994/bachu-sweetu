@@ -317,28 +317,38 @@
   }
   .quiz-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
-  .quiz-input {
-    flex: 1;
-    padding: 10px 14px;
-    border-radius: 20px;
-    border: none;
-    font-size: 0.9rem;
-    font-family: inherit;
-    outline: none;
-  }
-  .quiz-check {
+  .option-btn {
     padding: 10px 16px;
-    background: #b3264d;
-    color: #fff;
-    border: none;
+    background: rgba(255,255,255,0.6);
+    color: #4a1c2b;
+    border: 2px solid rgba(178,38,77,0.25);
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     cursor: pointer;
     font-family: inherit;
-    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex: 1 1 auto;
+    min-width: 100px;
   }
+  .option-btn:hover { background: rgba(255,255,255,0.85); }
+  .option-btn.selected-correct {
+    background: #4caf50;
+    color: #fff;
+    border-color: #4caf50;
+  }
+  .option-btn.selected-wrong {
+    background: #e05a5a;
+    color: #fff;
+    border-color: #e05a5a;
+  }
+  .option-btn.reveal-correct {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px #4caf50 inset;
+  }
+  .option-btn:disabled { cursor: default; opacity: 0.9; }
   .quiz-feedback {
     margin-top: 8px;
     font-size: 0.88rem;
@@ -354,6 +364,27 @@
     font-weight: bold;
     color: #b3264d;
   }
+  .answers-log {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(178,38,77,0.3);
+  }
+  .answers-log-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #b3264d;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .answer-entry {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 10px;
+    margin-bottom: 6px;
+  }
+  .answer-entry .a-correct { color: #2e7d32; font-weight: bold; }
+  .answer-entry .a-wrong { color: #b3264d; font-weight: bold; }
 
   footer {
     text-align: center;
@@ -451,41 +482,54 @@ Bachu 🤍</p>
 
     <div class="quiz-item">
       <div class="quiz-question">1. My DOB?</div>
-      <div class="quiz-row">
-        <input type="text" class="quiz-input" id="q1" placeholder="Type your answer">
-        <button class="quiz-check" onclick="checkQuiz(1)">Check</button>
+      <div class="quiz-row" id="q1">
+        <button class="option-btn" onclick="checkQuiz(1,this,false)">12th Feb</button>
+        <button class="option-btn" onclick="checkQuiz(1,this,true)">23rd Feb</button>
+        <button class="option-btn" onclick="checkQuiz(1,this,false)">3rd Feb</button>
+        <button class="option-btn" onclick="checkQuiz(1,this,false)">23rd Mar</button>
       </div>
       <div class="quiz-feedback" id="f1"></div>
     </div>
 
     <div class="quiz-item">
       <div class="quiz-question">2. My Fav Person?</div>
-      <div class="quiz-row">
-        <input type="text" class="quiz-input" id="q2" placeholder="Type your answer">
-        <button class="quiz-check" onclick="checkQuiz(2)">Check</button>
+      <div class="quiz-row" id="q2">
+        <button class="option-btn" onclick="checkQuiz(2,this,false)">Mumma</button>
+        <button class="option-btn" onclick="checkQuiz(2,this,false)">Bestie</button>
+        <button class="option-btn" onclick="checkQuiz(2,this,true)">Preeti</button>
+        <button class="option-btn" onclick="checkQuiz(2,this,false)">Myself</button>
       </div>
       <div class="quiz-feedback" id="f2"></div>
     </div>
 
     <div class="quiz-item">
       <div class="quiz-question">3. My Fav Movie Type?</div>
-      <div class="quiz-row">
-        <input type="text" class="quiz-input" id="q3" placeholder="Type your answer">
-        <button class="quiz-check" onclick="checkQuiz(3)">Check</button>
+      <div class="quiz-row" id="q3">
+        <button class="option-btn" onclick="checkQuiz(3,this,false)">Romance</button>
+        <button class="option-btn" onclick="checkQuiz(3,this,false)">Comedy</button>
+        <button class="option-btn" onclick="checkQuiz(3,this,true)">Horror</button>
+        <button class="option-btn" onclick="checkQuiz(3,this,false)">Action</button>
       </div>
       <div class="quiz-feedback" id="f3"></div>
     </div>
 
     <div class="quiz-item">
       <div class="quiz-question">4. Color of shirt I wore in our first meet?</div>
-      <div class="quiz-row">
-        <input type="text" class="quiz-input" id="q4" placeholder="Type your answer">
-        <button class="quiz-check" onclick="checkQuiz(4)">Check</button>
+      <div class="quiz-row" id="q4">
+        <button class="option-btn" onclick="checkQuiz(4,this,false)">White</button>
+        <button class="option-btn" onclick="checkQuiz(4,this,true)">Black</button>
+        <button class="option-btn" onclick="checkQuiz(4,this,false)">Blue</button>
+        <button class="option-btn" onclick="checkQuiz(4,this,false)">Red</button>
       </div>
       <div class="quiz-feedback" id="f4"></div>
     </div>
 
     <div class="quiz-score" id="quizScore"></div>
+
+    <div class="answers-log">
+      <div class="answers-log-title">💬 Sweetu's Answers</div>
+      <div id="answersLog"></div>
+    </div>
   </div>
 </section>
 
@@ -568,34 +612,73 @@ Bachu 🤍</p>
   setInterval(updateCounter, 1000);
 
   // Quiz logic
-  const quizAnswers = {
-    1: ["23rd feb", "23 feb", "feb 23", "23rd february", "23 february", "february 23", "23/02", "23-02"],
-    2: ["preeti"],
-    3: ["horror"],
-    4: ["black"]
-  };
   let quizSolved = { 1:false, 2:false, 3:false, 4:false };
+  const quizQuestions = {
+    1: "My DOB?",
+    2: "My Fav Person?",
+    3: "My Fav Movie Type?",
+    4: "Color of shirt I wore in our first meet?"
+  };
+  let savedAnswers = {};
 
-  function normalize(str){
-    return str.trim().toLowerCase().replace(/\s+/g,' ');
+  async function loadSavedAnswers(){
+    try{
+      const result = await window.storage.get('quiz-answers', true);
+      if(result && result.value){
+        savedAnswers = JSON.parse(result.value);
+        Object.keys(savedAnswers).forEach(num=>{
+          renderAnswerLog();
+        });
+      }
+    } catch(e){
+      // no saved answers yet
+    }
   }
 
-  function checkQuiz(num){
-    const input = document.getElementById('q'+num);
+  async function saveAnswer(num, answerText, isCorrect){
+    savedAnswers[num] = { question: quizQuestions[num], answer: answerText, correct: isCorrect };
+    renderAnswerLog();
+    try{
+      await window.storage.set('quiz-answers', JSON.stringify(savedAnswers), true);
+    } catch(e){
+      console.error('Could not save answer', e);
+    }
+  }
+
+  function renderAnswerLog(){
+    const log = document.getElementById('answersLog');
+    const order = [1,2,3,4];
+    log.innerHTML = order
+      .filter(n => savedAnswers[n])
+      .map(n => {
+        const a = savedAnswers[n];
+        const cls = a.correct ? 'a-correct' : 'a-wrong';
+        const mark = a.correct ? '✔' : '✘';
+        return `<div class="answer-entry">${a.question} <span class="${cls}">${a.answer} ${mark}</span></div>`;
+      }).join('');
+  }
+
+  function checkQuiz(num, btnEl, isCorrect){
+    const row = document.getElementById('q'+num);
     const feedback = document.getElementById('f'+num);
-    const userAns = normalize(input.value);
-    const correctList = quizAnswers[num];
-    const isCorrect = correctList.some(ans => userAns === ans || userAns.includes(ans));
+    const buttons = row.querySelectorAll('.option-btn');
+
+    buttons.forEach(b => b.disabled = true);
 
     if(isCorrect){
+      btnEl.classList.add('selected-correct');
       feedback.textContent = "Correct! You know me so well 🥰";
       feedback.className = "quiz-feedback correct";
       quizSolved[num] = true;
     } else {
-      feedback.textContent = "Not quite, try again 😅";
+      btnEl.classList.add('selected-wrong');
+      feedback.textContent = "Not quite! Here's the right one below 💭";
       feedback.className = "quiz-feedback wrong";
       quizSolved[num] = false;
+      const correctBtn = Array.from(buttons).find(b => b.getAttribute('onclick').includes(',true)'));
+      if(correctBtn) correctBtn.classList.add('reveal-correct');
     }
+    saveAnswer(num, btnEl.textContent, isCorrect);
     updateQuizScore();
   }
 
@@ -610,6 +693,8 @@ Bachu 🤍</p>
       scoreEl.textContent = "";
     }
   }
+
+  loadSavedAnswers();
 
   // Message button
   const messages = [
