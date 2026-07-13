@@ -302,12 +302,57 @@
     max-width: 260px;
   }
 
-  #message-result {
-    margin-top: 18px;
-    font-size: 1.05rem;
+  .quiz-item {
+    text-align: left;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(178,38,77,0.15);
+  }
+  .quiz-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .quiz-question {
+    font-size: 0.98rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #4a1c2b;
+  }
+  .quiz-row {
+    display: flex;
+    gap: 8px;
+  }
+  .quiz-input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: none;
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+  }
+  .quiz-check {
+    padding: 10px 16px;
+    background: #b3264d;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .quiz-feedback {
+    margin-top: 8px;
+    font-size: 0.88rem;
+    min-height: 20px;
+    font-weight: bold;
+  }
+  .quiz-feedback.correct { color: #2e7d32; }
+  .quiz-feedback.wrong { color: #b3264d; }
+  .quiz-score {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 1rem;
     font-weight: bold;
     color: #b3264d;
-    min-height: 28px;
   }
 
   footer {
@@ -401,6 +446,50 @@ Bachu 🤍</p>
 </section>
 
 <section>
+  <div class="glass-card">
+    <h2>🧠 How Well Do You Know Bachu?</h2>
+
+    <div class="quiz-item">
+      <div class="quiz-question">1. My DOB?</div>
+      <div class="quiz-row">
+        <input type="text" class="quiz-input" id="q1" placeholder="Type your answer">
+        <button class="quiz-check" onclick="checkQuiz(1)">Check</button>
+      </div>
+      <div class="quiz-feedback" id="f1"></div>
+    </div>
+
+    <div class="quiz-item">
+      <div class="quiz-question">2. My Fav Person?</div>
+      <div class="quiz-row">
+        <input type="text" class="quiz-input" id="q2" placeholder="Type your answer">
+        <button class="quiz-check" onclick="checkQuiz(2)">Check</button>
+      </div>
+      <div class="quiz-feedback" id="f2"></div>
+    </div>
+
+    <div class="quiz-item">
+      <div class="quiz-question">3. My Fav Movie Type?</div>
+      <div class="quiz-row">
+        <input type="text" class="quiz-input" id="q3" placeholder="Type your answer">
+        <button class="quiz-check" onclick="checkQuiz(3)">Check</button>
+      </div>
+      <div class="quiz-feedback" id="f3"></div>
+    </div>
+
+    <div class="quiz-item">
+      <div class="quiz-question">4. Color of shirt I wore in our first meet?</div>
+      <div class="quiz-row">
+        <input type="text" class="quiz-input" id="q4" placeholder="Type your answer">
+        <button class="quiz-check" onclick="checkQuiz(4)">Check</button>
+      </div>
+      <div class="quiz-feedback" id="f4"></div>
+    </div>
+
+    <div class="quiz-score" id="quizScore"></div>
+  </div>
+</section>
+
+<section>
   <div class="glass-card" style="text-align:center;">
     <h2>💗 Just for Sweetu</h2>
     <p style="font-size:0.95rem;">Tap the button and see what the universe (and Bachu) has to say:</p>
@@ -477,6 +566,50 @@ Bachu 🤍</p>
     document.getElementById('secs').textContent = secs;
   }
   setInterval(updateCounter, 1000);
+
+  // Quiz logic
+  const quizAnswers = {
+    1: ["23rd feb", "23 feb", "feb 23", "23rd february", "23 february", "february 23", "23/02", "23-02"],
+    2: ["preeti"],
+    3: ["horror"],
+    4: ["black"]
+  };
+  let quizSolved = { 1:false, 2:false, 3:false, 4:false };
+
+  function normalize(str){
+    return str.trim().toLowerCase().replace(/\s+/g,' ');
+  }
+
+  function checkQuiz(num){
+    const input = document.getElementById('q'+num);
+    const feedback = document.getElementById('f'+num);
+    const userAns = normalize(input.value);
+    const correctList = quizAnswers[num];
+    const isCorrect = correctList.some(ans => userAns === ans || userAns.includes(ans));
+
+    if(isCorrect){
+      feedback.textContent = "Correct! You know me so well 🥰";
+      feedback.className = "quiz-feedback correct";
+      quizSolved[num] = true;
+    } else {
+      feedback.textContent = "Not quite, try again 😅";
+      feedback.className = "quiz-feedback wrong";
+      quizSolved[num] = false;
+    }
+    updateQuizScore();
+  }
+
+  function updateQuizScore(){
+    const total = Object.values(quizSolved).filter(v=>v).length;
+    const scoreEl = document.getElementById('quizScore');
+    if(total === 4){
+      scoreEl.textContent = "🎉 4/4 — You truly know my heart, Sweetu!";
+    } else if(total > 0){
+      scoreEl.textContent = `${total}/4 correct so far — keep going!`;
+    } else {
+      scoreEl.textContent = "";
+    }
+  }
 
   // Message button
   const messages = [
