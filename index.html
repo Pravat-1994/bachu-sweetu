@@ -248,15 +248,101 @@
     opacity: 0.8;
   }
 
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .shake { animation: shake 0.4s ease; }
+
   @media (max-width: 600px) {
     .names { font-size: 2.3rem; gap: 10px; }
     .nick { font-size: 1.2rem; }
     h2 { font-size: 1.6rem; }
   }
+
+  /* Password lock screen */
+  #lockScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #ff6b81, #ee9ca7, #ffc3a0);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+  #lockScreen.hidden { display: none; }
+  .lock-heart {
+    font-size: 3rem;
+    animation: beat 1.2s ease-in-out infinite;
+    margin-bottom: 10px;
+  }
+  .lock-title {
+    font-size: 1.8rem;
+    color: #fff;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    margin-bottom: 8px;
+  }
+  .lock-subtitle {
+    color: #fff;
+    opacity: 0.9;
+    margin-bottom: 25px;
+    font-size: 1rem;
+  }
+  #passwordInput {
+    padding: 14px 20px;
+    border-radius: 30px;
+    border: none;
+    font-size: 1.1rem;
+    text-align: center;
+    width: 260px;
+    max-width: 80vw;
+    outline: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  }
+  #unlockBtn {
+    margin-top: 15px;
+    padding: 12px 36px;
+    background: #b3264d;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease;
+  }
+  #unlockBtn:hover { transform: scale(1.05); }
+  #lockError {
+    margin-top: 15px;
+    color: #fff;
+    background: rgba(178,20,50,0.5);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    display: none;
+  }
+  #siteContent.hidden { display: none; }
 </style>
 </head>
 <body>
 
+<div id="lockScreen">
+  <div class="lock-heart">🔒💕</div>
+  <div class="lock-title">This little place is just for us</div>
+  <div class="lock-subtitle">Enter the password to enter, Sweetu 🥰</div>
+  <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPassword()">
+  <button id="unlockBtn" onclick="checkPassword()">Unlock 💗</button>
+  <div id="lockError">Oops, that's not it. Try again 💭</div>
+</div>
+
+<div id="siteContent" class="hidden">
 <div id="hearts-container"></div>
 
 <div class="hero">
@@ -338,7 +424,24 @@ Bachu 🤍</p>
   Made with ❤️ by Bachu, for Sweetu — and for us.
 </footer>
 
+</div><!-- /siteContent -->
+
 <script>
+  // Password gate
+  const SITE_PASSWORD = "sweetu14"; // change this to whatever you like!
+  function checkPassword(){
+    const input = document.getElementById('passwordInput');
+    const error = document.getElementById('lockError');
+    if(input.value.trim().toLowerCase() === SITE_PASSWORD.toLowerCase()){
+      document.getElementById('lockScreen').classList.add('hidden');
+      document.getElementById('siteContent').classList.remove('hidden');
+    } else {
+      error.style.display = 'block';
+      input.classList.add('shake');
+      setTimeout(()=> input.classList.remove('shake'), 400);
+    }
+  }
+
   // Floating hearts background
   const container = document.getElementById('hearts-container');
   const heartSymbols = ['❤','💕','💗','💓','💖'];
