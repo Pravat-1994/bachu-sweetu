@@ -24,8 +24,17 @@
       linear-gradient(rgba(30,10,20,0.55), rgba(60,10,30,0.65)),
       url('couple.jpg');
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  @media (max-width: 768px) {
+    .hero {
+      background-attachment: scroll;
+      background-position: center 20%;
+    }
   }
   .hero .names, .hero .nick, .hero .subtitle, .hero .scroll-hint {
     color: #fff;
